@@ -22,6 +22,7 @@ res = Net::HTTP.start(
         uri.host, uri.port, 
         :use_ssl => uri.scheme == 'https', 
         :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+  https.set_debug_output($stdout)
   https.request(req)
 end
 puts res.body
@@ -34,10 +35,12 @@ File.open("./application.zip") do |appzip|
   "Authorization" => "#{auth}",
   "name" => "node-chat",
   "resources" => "[]",
-  "filename" => appzip
+  "filename" => UploadIO.new(appzip, "application/binary", "application.zip")
   res = Net::HTTP.start(uri.host, uri.port,
         :use_ssl => uri.scheme == 'https', 
         :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
+    puts "starting request: #{req.inspect}"
+    https.set_debug_output($stdout)
     https.request(req)
   end
 end
