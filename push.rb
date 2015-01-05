@@ -9,6 +9,7 @@ module Net
 
       if req.method == "POST" || req.method == "PUT"
         data = req.body.nil? || req.body.size == 0 ? body : req.body
+        puts "####### req.body.inspect: #{data.inspect}"
         puts "####### POST Data: #{data}"
       end
 
