@@ -1,5 +1,24 @@
 require 'net/http/post/multipart'
 
+module Net
+  class HTTP
+    alias_method(:orig_request, :request) unless method_defined?(:orig_request)
+
+    def request(req, body = nil, &block)
+      puts "####### Request: #{req.method} http://#{@address}:#{@port}#{req.path}"
+
+      if req.method == "POST" || req.method == "PUT"
+        data = req.body.nil? || req.body.size == 0 ? body : req.body
+        puts "####### POST Data: #{data}"
+      end
+
+      response = orig_request(req, body, &block)
+      puts "####### Response: #{response.body}"
+      response
+    end
+  end
+end
+
 auth = 'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjbG91ZF9jb250cm9sbGVyIiwiaWF0IjoxNDIwNDgyODc0LCJleHAiOjE0MjA1NjkyNzQsImNsaWVudF9pZCI6ImNmIiwic2NvcGUiOlsib3BlbmlkIiwicGFzc3dvcmQud3JpdGUiLCJjbG91ZF9jb250cm9sbGVyLmFkbWluIiwiY2xvdWRfY29udHJvbGxlci5yZWFkIiwiY2xvdWRfY29udHJvbGxlci53cml0ZSIsInNjaW0ucmVhZCIsInNjaW0ud3JpdGUiXSwianRpIjoiZDdjNmIwNTgtYTM2YS00ZjRlLTkzM2YtNmQxYmViNmQ1YzJlIiwidXNlcl9pZCI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInN1YiI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInVzZXJfbmFtZSI6ImpkdyIsImVtYWlsIjoiamR3QGpkdy5jb20ifQ.wznwqcrbmr0ecjxG9Pc1jcuO3QnoWzjInyPCQOCeJcY'
 
 ## /info, no auth
@@ -36,15 +55,15 @@ File.open("./application.zip") do |appzip|
   "name" => "node-chat",
   "resources" => "[]",
   "filename" => UploadIO.new(appzip, "application/binary", "application.zip")
+
   res = Net::HTTP.start(uri.host, uri.port,
         :use_ssl => uri.scheme == 'https', 
         :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |https|
-    puts "starting request: #{req.inspect}"
-    https.set_debug_output($stdout)
+    puts "calling https.request"
     https.request(req)
-  end
 end
-puts res.body
+
+end
 
 exit
 
