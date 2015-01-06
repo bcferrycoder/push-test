@@ -1,3 +1,6 @@
+# This is from:  http://stackoverflow.com/questions/184178/ruby-how-to-post-a-file-via-http-as-multipart-form-data
+# Also see this cheat sheet: http://www.rubyinside.com/nethttp-cheat-sheet-2940.html
+
 # Takes a hash of string and file parameters and returns a string of text
 # formatted to be sent as a multipart form post.
 #
@@ -5,10 +8,11 @@
 # Created:: 22 Feb 2008
 # License:: Distributed under the terms of the WTFPL (http://www.wtfpl.net/txt/copying/)
 
-require 'rubygems'
+require 'net/http'
 require 'mime/types'
+require 'rubygems'
 require 'cgi'
-
+require 'uri'
 
 module Multipart
   VERSION = "1.0.0"
@@ -85,7 +89,30 @@ my_string = "somestring"
 my_file = File.open("./application.zip")
 data, headers = Multipart::Post.prepare_query("title" => my_string, "document" => my_file)
 
+auth = 'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjbG91ZF9jb250cm9sbGVyIiwiaWF0IjoxNDIwNDgyODc0LCJleHAiOjE0MjA1NjkyNzQsImNsaWVudF9pZCI6ImNmIiwic2NvcGUiOlsib3BlbmlkIiwicGFzc3dvcmQud3JpdGUiLCJjbG91ZF9jb250cm9sbGVyLmFkbWluIiwiY2xvdWRfY29udHJvbGxlci5yZWFkIiwiY2xvdWRfY29udHJvbGxlci53cml0ZSIsInNjaW0ucmVhZCIsInNjaW0ud3JpdGUiXSwianRpIjoiZDdjNmIwNTgtYTM2YS00ZjRlLTkzM2YtNmQxYmViNmQ1YzJlIiwidXNlcl9pZCI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInN1YiI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInVzZXJfbmFtZSI6ImpkdyIsImVtYWlsIjoiamR3QGpkdy5jb20ifQ.wznwqcrbmr0ecjxG9Pc1jcuO3QnoWzjInyPCQOCeJcY'
 
-puts data
+#headers["Authorization"] = "#{auth}"
 
-#http = Net::HTTP.new(upload_uri.host, upload_uri.port)
+#headers["name"] = "node-chat"
+#headers["resources"] = "[]"
+
+puts "HEADERS: #{headers.inspect}"
+
+upload_uri = URI('https://api.192.168.0.112.xip.io/v2/apps/2713d496-9a6e-4513-b081-3b3a358853ee/bits')
+
+puts "UPLOAD_URI.PATH: #{upload_uri.path}"
+puts "UPLOAD_URI.HOST: #{upload_uri.host}"
+puts "UPLOAD_URI.PORT: #{upload_uri.port}"
+puts "UPLOAD_URI.SCHEME: #{upload_uri.scheme}"
+puts UPLOAD_URI: #{upload_url.inspect}"
+
+http = Net::HTTP.new(upload_uri.host, upload_uri.port)
+#        :use_ssl => upload_uri.scheme == 'https', 
+#        :verify_mode => OpenSSL::SSL::VERIFY_NONE)
+
+puts "DATASIZE: #{data.size.inspect}"
+puts "DATA IS STRING #{data.is_a? String}"
+puts "HEADERS IS STRING #{headers.is_a? String}"
+puts "UPLOAD_URI.PATH IS STRING #{upload_uri.path.is_a? String}"
+
+res = http.start( :use_ssl => upload_uri.scheme == 'https') {|con| con.post(upload_uri.path, data, headers) }
