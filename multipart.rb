@@ -87,32 +87,26 @@ end
 
 my_string = "somestring"
 my_file = File.open("./application.zip")
-data, headers = Multipart::Post.prepare_query("title" => my_string, "document" => my_file)
+data, headers = Multipart::Post.prepare_query("title" => my_string, "application" => my_file)
 
-auth = 'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjbG91ZF9jb250cm9sbGVyIiwiaWF0IjoxNDIwNDgyODc0LCJleHAiOjE0MjA1NjkyNzQsImNsaWVudF9pZCI6ImNmIiwic2NvcGUiOlsib3BlbmlkIiwicGFzc3dvcmQud3JpdGUiLCJjbG91ZF9jb250cm9sbGVyLmFkbWluIiwiY2xvdWRfY29udHJvbGxlci5yZWFkIiwiY2xvdWRfY29udHJvbGxlci53cml0ZSIsInNjaW0ucmVhZCIsInNjaW0ud3JpdGUiXSwianRpIjoiZDdjNmIwNTgtYTM2YS00ZjRlLTkzM2YtNmQxYmViNmQ1YzJlIiwidXNlcl9pZCI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInN1YiI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInVzZXJfbmFtZSI6ImpkdyIsImVtYWlsIjoiamR3QGpkdy5jb20ifQ.wznwqcrbmr0ecjxG9Pc1jcuO3QnoWzjInyPCQOCeJcY'
+auth = 'bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjbG91ZF9jb250cm9sbGVyIiwiaWF0IjoxNDIwNTExMDA1LCJleHAiOjE0MjA1OTc0MDUsImNsaWVudF9pZCI6ImNmIiwic2NvcGUiOlsib3BlbmlkIiwicGFzc3dvcmQud3JpdGUiLCJjbG91ZF9jb250cm9sbGVyLmFkbWluIiwiY2xvdWRfY29udHJvbGxlci5yZWFkIiwiY2xvdWRfY29udHJvbGxlci53cml0ZSIsInNjaW0ucmVhZCIsInNjaW0ud3JpdGUiXSwianRpIjoiYTQwOTNhN2ItNzUxZS00Y2Y1LTllMzEtNjM5NmI1YWQ3MWUyIiwidXNlcl9pZCI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInN1YiI6IjFiMzYzMjNhLWYzMWEtNGMxMi1hYWRjLTA0Y2EzZDRkZGMwMCIsInVzZXJfbmFtZSI6ImpkdyIsImVtYWlsIjoiamR3QGpkdy5jb20ifQ.95hPdpBudGud5NiSZGKhdhhFwojQMlSqyZbk3yrI9cY'
 
-#headers["Authorization"] = "#{auth}"
-
-#headers["name"] = "node-chat"
-#headers["resources"] = "[]"
+headers["Authorization"] = "#{auth}"
+headers["name"] = "node-chat"
+headers["resources"] = "[]"
 
 puts "HEADERS: #{headers.inspect}"
 
 upload_uri = URI('https://api.192.168.0.112.xip.io/v2/apps/2713d496-9a6e-4513-b081-3b3a358853ee/bits')
 
-puts "UPLOAD_URI.PATH: #{upload_uri.path}"
-puts "UPLOAD_URI.HOST: #{upload_uri.host}"
-puts "UPLOAD_URI.PORT: #{upload_uri.port}"
-puts "UPLOAD_URI.SCHEME: #{upload_uri.scheme}"
-puts UPLOAD_URI: #{upload_url.inspect}"
+#upload_uri = URI('https://api.192.168.0.112.xip.io/v2/apps/654d96fc-6c9c-4fd9-a641-619c31a07406/routes/22ef3b1c-18d1-4a85-bf93-dd3e5bf58950')
 
-http = Net::HTTP.new(upload_uri.host, upload_uri.port)
-#        :use_ssl => upload_uri.scheme == 'https', 
-#        :verify_mode => OpenSSL::SSL::VERIFY_NONE)
+res = Net::HTTP.start(upload_uri.host, upload_uri.port,
+        :use_ssl => upload_uri.scheme == 'https', 
+        :verify_mode => OpenSSL::SSL::VERIFY_NONE) {|con| 
+  puts "P #{upload_uri.path.inspect}"
+  puts "D #{headers.inspect}"
 
-puts "DATASIZE: #{data.size.inspect}"
-puts "DATA IS STRING #{data.is_a? String}"
-puts "HEADERS IS STRING #{headers.is_a? String}"
-puts "UPLOAD_URI.PATH IS STRING #{upload_uri.path.is_a? String}"
+  con.put(upload_uri.path, data, headers) 
+}
 
-res = http.start( :use_ssl => upload_uri.scheme == 'https') {|con| con.post(upload_uri.path, data, headers) }
