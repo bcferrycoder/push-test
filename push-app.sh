@@ -3,7 +3,17 @@
 STACKATO_HOST=https://api.192.168.0.112.xip.io
 USERNAME=jdw
 PASSWORD=jdw
-APPNAME=coconut
+APPNAME=java-hello
+ZIPFILE=hj.zip
+
+if [ ! -f "$ZIPFILE" ]
+then
+    echo "Application zip file required"
+    echo "Create a zipfile containing the app and manifest, update ZIPFILE above, and try again"
+    exit
+fi
+ 
+
 
 echo "######### /uaa/oauth/token"
 TOKEN=`curl -s -k -H 'AUTHORIZATION: Basic Y2Y6' -d "username=${USERNAME}&password=${PASSWORD}&grant_type=password" ${STACKATO_HOST}/uaa/oauth/token | jq -r .access_token`
@@ -43,11 +53,9 @@ echo "ASSOCIATE ROUTE"
 curl -k -X PUT -H "${AUTH}" ${STACKATO_HOST}/v2/apps/${APP}/routes/${ROUTE}
 
 echo "UPLOAD BITS"
-echo curl -H "Expect:" -0 -include -v -k -X PUT -H "${AUTH}" -F 'resources=[]' -F "application=@application.zip;type=application/binary" ${STACKATO_HOST}/v2/apps/${APP}/bits
-curl -H "Expect:" -0 -include -v -k -X PUT -H "${AUTH}" -F 'resources=[]' -F "application=@application.zip;type=application/binary" ${STACKATO_HOST}/v2/apps/${APP}/bits
 
-echo "orgs"
-curl -k -H "${AUTH}" ${STACKATO_HOST}/v2/organizations
 
-exit
+echo curl -H "Expect:" -0 -include -v -k -X PUT -H "${AUTH}" -F 'resources=[]' -F "application=@${ZIPFILE};type=application/binary" ${STACKATO_HOST}/v2/apps/${APP}/bits
+curl -H "Expect:" -0 -include -v -k -X PUT -H "${AUTH}" -F 'resources=[]' -F "application=@${ZIPFILE};type=application/binary" ${STACKATO_HOST}/v2/apps/${APP}/bits
 
+curl -v -k -X PUT -d '{"console":true,"state":"STARTED"}' -H "${AUTH}" ${STACKATO_HOST}/v2/apps/${APP}
